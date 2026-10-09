@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: payments-api-dev
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+    kargo.akuity.io/authorized-stage: payments:dev
+spec:
+  project: payments-project
+  source:
+    repoURL: https://github.com/AaronStahley/payments-gitops.git
+    targetRevision: stage/dev
+    path: manifests/payments-api/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: payments-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

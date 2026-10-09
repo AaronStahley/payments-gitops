@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: payments-kargo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"  # Before payments-api apps
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: payments-project
+
+  source:
+    repoURL: https://github.com/AaronStahley/payments-gitops.git
+    targetRevision: main
+    path: kargo
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: payments
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

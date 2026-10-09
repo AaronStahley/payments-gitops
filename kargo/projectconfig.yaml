@@ -1,0 +1,17 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: ProjectConfig
+metadata:
+  name: payments
+  namespace: payments
+spec:
+  # Promotional policies for stages
+  promotionPolicies:
+    # Dev stage auto-promotes new freight
+    - stageSelector:
+        name: dev
+      autoPromotionEnabled: true
+
+    # QA stage requires manual approval
+    - stageSelector:
+        name: qa
+      autoPromotionEnabled: false

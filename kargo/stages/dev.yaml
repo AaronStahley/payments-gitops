@@ -1,0 +1,73 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: dev
+  namespace: payments
+  annotations:
+    kargo.akuity.io/color: green
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: payments-api
+      sources:
+        direct: true
+
+  promotionTemplate:
+    spec:
+      steps:
+        - uses: git-clone
+          config:
+            repoURL: https://github.com/AaronStahley/payments-gitops.git
+            checkout:
+              # Clone the source commit (from Freight)
+              - commit: ${{ commitFrom("https://github.com/AaronStahley/payments-gitops.git").ID }}
+                path: ./src
+              # Clone the output stage/dev branch
+              - branch: stage/dev
+                create: true
+                path: ./out
+
+        - uses: yaml-update
+          as: update-api
+          config:
+            path: ./src/manifests/payments-api/base/webapi.yaml
+            updates:
+              - key: spec.image.tag
+                value: ${{ imageFrom("ghcr.io/stefanprodan/podinfo").Tag }}
+
+        - uses: git-clear
+          config:
+            path: ./out
+
+        - uses: copy
+          config:
+            inPath: ./src/manifests/payments-api/base
+            outPath: ./out/manifests/payments-api/base
+
+        - uses: copy
+          config:
+            inPath: ./src/manifests/payments-api/overlays/dev
+            outPath: ./out/manifests/payments-api/overlays/dev
+
+        # Commit to output branch
+        - uses: git-commit
+          config:
+            path: ./out
+            message: |
+              Promote payments-api ${{ imageFrom("ghcr.io/stefanprodan/podinfo").Tag }} to dev
+
+              Source commit: ${{ commitFrom("https://github.com/AaronStahley/payments-gitops.git").ID }}
+
+        # Push to stage/dev branch
+        - uses: git-push
+          config:
+            path: ./out
+            targetBranch: stage/dev
+
+        # Trigger ArgoCD sync
+        - uses: argocd-update
+          config:
+            apps:
+              - name: payments-api-dev
+                namespace: argocd
