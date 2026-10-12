@@ -1,0 +1,18 @@
+apiVersion: platform.aaronstahley.dev/v1alpha1
+kind: WebApi
+metadata:
+  name: payments-api
+spec:
+  replicas: 3
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 500m
+  env:
+    - name: PODINFO_UI_MESSAGE
+      value: payments-api (prod)
+    - name: PODINFO_UI_COLOR
+      value: "#c53030"

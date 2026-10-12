@@ -1,0 +1,41 @@
+apiVersion: platform.aaronstahley.dev/v1alpha1
+kind: WebApi
+metadata:
+  name: payments-api
+  labels:
+    domain: payments
+    managed-by: kargo
+spec:
+  image:
+    repository: ghcr.io/stefanprodan/podinfo
+    tag: 6.15.0
+    pullPolicy: IfNotPresent
+
+  # Required when probes are enabled: they target the named port "http".
+  containerPort: 9898
+
+  healthCheck:
+    liveness:
+      enabled: true
+      path: /healthz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3
+    readiness:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: http
+
+  labels:
+    domain: payments
