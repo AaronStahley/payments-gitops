@@ -1,5 +1,7 @@
 # payments-gitops
 
+> A **sample tenant** of an [internal developer platform proof of concept](https://github.com/AaronStahley/platform-gitops#readme). It stands in for a real team's repo. Start there for the overview.
+
 GitOps repository for the **payments** domain. It is owned by the payments team and deployed by Argo CD; promotion between environments is handled by Kargo.
 
 This is a demo domain. The workload is [podinfo](https://github.com/stefanprodan/podinfo), a small public web service, declared as a `WebApi` and reconciled by [webapi-operator](https://github.com/AaronStahley/webapi-operator).
